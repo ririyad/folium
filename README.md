@@ -1,2 +1,2 @@
-# folium
-Plant a tree. Make it grow. Save the Earth
+# Project Folium
+Project Folium is a voluntary initiative to plant and protect trees as a responsibility to the Earth to make it better than yesterday.
