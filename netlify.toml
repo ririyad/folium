@@ -6,10 +6,3 @@
   command = "npm run dev -- --host"
   port = 3000
   targetPort = 3000
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
