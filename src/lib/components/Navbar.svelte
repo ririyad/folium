@@ -3,8 +3,9 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import type { User } from '@supabase/supabase-js';
 
-	let user = $state(null);
+	let user = $state<User | null>(null);
 
 	async function signOut() {
 		await supabase.auth.signOut();
@@ -13,11 +14,11 @@
 
 	onMount(() => {
 		supabase.auth.getSession().then(({ data: { session } }) => {
-			user = session?.user;
+			user = session?.user ?? null;
 		});
 
 		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-			user = session?.user;
+			user = session?.user ?? null;
 		});
 	});
 </script>
@@ -46,8 +47,6 @@
 				<div class="avatar" onclick={signOut} title="Sign Out">
 					{user.email?.charAt(0).toUpperCase()}
 				</div>
-			{:else}
-				<a href="/signin" class="btn-signin">Sign In</a>
 			{/if}
 		</div>
 	</div>
