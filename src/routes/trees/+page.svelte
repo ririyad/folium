@@ -2,6 +2,8 @@
 	import { supabase } from '$lib/supabaseClient';
 	import { onMount } from 'svelte';
 
+	type UserRole = 'admin' | 'volunteer' | 'viewer';
+
 	interface Tree {
 		id: string;
 		name: string;
@@ -18,6 +20,9 @@
 	let error = $state<string | null>(null);
 	let showForm = $state(false);
 	let editingTree = $state<Tree | null>(null);
+	let user = $state<any>(null);
+	let userRole = $state<UserRole | null>(null);
+	let canEdit = $state(false);
 
 	let formData = $state({
 		name: '',
@@ -28,6 +33,36 @@
 		price: '',
 		status: 'healthy' as Tree['status']
 	});
+
+	async function loadUser() {
+		try {
+			const { data: { session } } = await supabase.auth.getSession();
+			if (!session?.user) {
+				userRole = 'viewer';
+				return;
+			}
+
+			user = session.user;
+
+			const { data: userData, error: userError } = await supabase
+				.from('users')
+				.select('role')
+				.eq('id', session.user.id)
+				.single();
+
+			if (userError) {
+				console.error('Error fetching user role:', userError);
+				userRole = 'viewer';
+				return;
+			}
+
+			userRole = userData?.role || 'viewer';
+			canEdit = userRole === 'admin' || userRole === 'volunteer';
+		} catch (err) {
+			console.error('Error loading user:', err);
+			userRole = 'viewer';
+		}
+	}
 
 	async function loadTrees() {
 		try {
@@ -48,6 +83,8 @@
 	}
 
 	function openForm(tree?: Tree) {
+		if (!canEdit) return;
+
 		if (tree) {
 			editingTree = tree;
 			formData = {
@@ -113,6 +150,8 @@
 	}
 
 	async function deleteTree(id: string) {
+		if (!canEdit) return;
+
 		if (!confirm('Are you sure you want to delete this tree?')) return;
 
 		try {
@@ -140,16 +179,25 @@
 	}
 
 	onMount(() => {
+		loadUser();
 		loadTrees();
 	});
+
 </script>
 
 <div class="container">
 	<div class="header">
 		<h1>Tree Management</h1>
-		<button class="btn btn-primary" on:click={() => openForm()}>
-			+ Add New Tree
-		</button>
+		{#if userRole === 'admin' || userRole === 'volunteer'}
+			<button class="btn btn-primary" onclick={() => openForm()}>
+				+ Add New Tree
+			</button>
+		{:else}
+			<div class="permission-hint">
+				<span class="icon">🔒</span>
+				<span>Only Admin and Volunteer roles can add trees</span>
+			</div>
+		{/if}
 	</div>
 
 	{#if loading}

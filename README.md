@@ -1,22 +1,49 @@
-# sv
+# Folium - Tree Plantation Management Platform
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A comprehensive tree plantation management application built with SvelteKit and Supabase. Track trees, volunteers, areas, and monitor plantation progress with real-time insights.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Dashboard** - Overview of plantation activities with key metrics (total trees, active volunteers, areas covered, tree health status)
+- **Tree Management** - Track individual trees with species, location, status, and care history
+- **Volunteer Management** - Monitor volunteer activities and contributions
+- **Area Tracking** - Organize plantations by geographic areas
+- **Insights & Analytics** - View plantation progress, species distribution, and trends
+- **Authentication** - Secure user authentication with role-based access (admin, volunteer, viewer)
+
+## Tech Stack
+
+- **Frontend**: SvelteKit 2, Svelte 5, TypeScript
+- **Backend**: Supabase (PostgreSQL, Auth, Row Level Security)
+- **Styling**: CSS with custom design system
+- **Deployment**: Netlify
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+- Supabase account
+
+### Installation
 
 ```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+npm install
 ```
 
-## Developing
+### Environment Variables
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Create a `.env` file in the root directory:
+
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Development
+
+Start the development server:
 
 ```sh
 npm run dev
@@ -25,14 +52,61 @@ npm run dev
 npm run dev -- --open
 ```
 
-## Building
+### Type Checking
 
-To create a production version of your app:
+```sh
+npm run check
+```
+
+### Build
+
+Create a production build:
 
 ```sh
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview the production build:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```sh
+npm run preview
+```
+
+## Project Structure
+
+```
+src/
+├── lib/
+│   ├── components/     # Reusable UI components
+│   ├── supabaseClient.ts  # Supabase client configuration
+├── routes/
+│   ├── +layout.svelte     # Main layout with navigation
+│   ├── +page.svelte       # Dashboard home page
+│   ├── auth/
+│   │   └── callback/      # Auth callback handler
+│   ├── insights/          # Analytics and insights page
+│   ├── signin/            # Sign in page
+│   ├── signup/            # Sign up page
+│   └── trees/             # Tree management page
+└── app.css                # Global styles
+```
+
+## Database Schema
+
+The application uses the following main tables:
+
+- **users** - User accounts with roles (admin, volunteer, viewer)
+- **trees** - Tree records with species, location, status
+- **volunteers** - Volunteer information and activity tracking
+- **areas** - Geographic plantation areas
+- **plantations** - Plantation events linking trees, volunteers, and areas
+
+See `supabase-schema.sql` for the complete database schema including RLS policies, views, and seed data.
+
+## Deployment
+
+The project is configured for Netlify deployment. See `netlify.toml` for configuration.
+
+## License
+
+MIT

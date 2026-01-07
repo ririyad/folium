@@ -1,12 +1,32 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { supabase } from '$lib/supabaseClient';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+
+	let user = $state(null);
+
+	async function signOut() {
+		await supabase.auth.signOut();
+		goto('/signin');
+	}
+
+	onMount(() => {
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			user = session?.user;
+		});
+
+		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+			user = session?.user;
+		});
+	});
 </script>
 
 <nav class="navbar">
 	<div class="nav-container">
 		<a href="/" class="logo">
-			<span class="icon">🌿</span>
-			<span class="text">Folium</span>
+			<span class="icon">🌳</span>
+			<span class="text">LiveTree</span>
 		</a>
 
 		<ul class="nav-links">
@@ -22,8 +42,13 @@
 		</ul>
 
 		<div class="user-menu">
-			<!-- Placeholder for user profile/avatar -->
-			<div class="avatar">A</div>
+			{#if user}
+				<div class="avatar" onclick={signOut} title="Sign Out">
+					{user.email?.charAt(0).toUpperCase()}
+				</div>
+			{:else}
+				<a href="/signin" class="btn-signin">Sign In</a>
+			{/if}
 		</div>
 	</div>
 </nav>
@@ -113,5 +138,22 @@
 
 	.avatar:hover {
 		transform: scale(1.05);
+	}
+
+	.btn-signin {
+		background: var(--primary-color);
+		color: white;
+		padding: 0.5rem 1.25rem;
+		border-radius: 8px;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		font-size: 0.9rem;
+	}
+
+	.btn-signin:hover {
+		background: var(--primary-hover);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
 	}
 </style>
