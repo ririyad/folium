@@ -8,10 +8,12 @@
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 
-	async function signIn() {
+	async function signIn(event: Event) {
 		try {
 			loading = true;
 			error = null;
+
+			event.preventDefault();
 
 			const { data, error: signInError } = await supabase.auth.signInWithPassword({
 				email,
@@ -63,7 +65,7 @@
 			</div>
 		{/if}
 
-		<form onsubmit={(e) => e.preventDefault(); signIn()}>
+		<form onsubmit={signIn}>
 			<div class="form-group">
 				<label for="email">Email</label>
 				<input

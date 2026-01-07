@@ -8,10 +8,12 @@
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 
-	async function signUp() {
+	async function signUp(event: Event) {
 		try {
 			loading = true;
 			error = null;
+
+			event.preventDefault();
 
 			const { data, error: signUpError } = await supabase.auth.signUp({
 				email,
@@ -68,7 +70,7 @@
 			</div>
 		{/if}
 
-		<form onsubmit={(e) => e.preventDefault(); signUp()}>
+		<form onsubmit={signUp}>
 			<div class="form-group">
 				<label for="fullName">Full Name</label>
 				<input
@@ -134,8 +136,8 @@
 
 		<p class="terms">
 			By creating an account, you agree to our
-			<a href="#">Terms of Service</a> and
-			<a href="#">Privacy Policy</a>
+			<a href="/terms">Terms of Service</a> and
+			<a href="/privacy">Privacy Policy</a>
 		</p>
 	</div>
 </div>

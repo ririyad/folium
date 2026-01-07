@@ -116,8 +116,10 @@
 		editingTree = null;
 	}
 
-	async function saveTree() {
+	async function saveTree(event: Event) {
 		try {
+			event.preventDefault();
+
 			const treeData = {
 				name: formData.name,
 				species: formData.species,
@@ -239,10 +241,20 @@
 </div>
 
 {#if showForm}
-	<div class="modal-overlay" on:click={closeForm}>
-		<div class="modal" on:click|stopPropagation>
+	<div
+		class="modal-overlay"
+		role="dialog"
+		aria-modal="true"
+		onclick={closeForm}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				closeForm();
+			}
+		}}
+	>
+		<div class="modal" onclick={(e) => e.stopPropagation()}>
 			<h2>{editingTree ? 'Edit Tree' : 'Add New Tree'}</h2>
-			<form on:submit|preventDefault={saveTree}>
+			<form onsubmit={saveTree}>
 				<div class="form-group">
 					<label for="name">Name *</label>
 					<input
@@ -306,7 +318,7 @@
 					</select>
 				</div>
 				<div class="form-actions">
-					<button type="button" class="btn btn-secondary" on:click={closeForm}>Cancel</button>
+					<button type="button" class="btn btn-secondary" onclick={closeForm}>Cancel</button>
 					<button type="submit" class="btn btn-primary">
 						{editingTree ? 'Update' : 'Create'} Tree
 					</button>
