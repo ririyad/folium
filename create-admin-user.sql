@@ -14,14 +14,13 @@ DECLARE
   public_user_exists BOOLEAN;
 BEGIN
   -- Check if user exists in both tables
-  SELECT EXISTS(SELECT 1 FROM auth.users WHERE email = admin_email) INTO auth_user_exists;
-  SELECT EXISTS(SELECT 1 FROM auth.users WHERE email = admin_email) INTO admin_id;
-  SELECT EXISTS(SELECT 1 FROM public.users WHERE email = admin_email) INTO public_user_exists;
+  SELECT EXISTS(SELECT 1 FROM auth.users WHERE email = admin_email), 
+         EXISTS(SELECT 1 FROM public.users WHERE email = admin_email)
+  INTO auth_user_exists, public_user_exists;
 
   IF public_user_exists THEN
     RAISE NOTICE 'Admin user already exists in public.users. Checking role...';
     
-    -- Get the user's current role
     DECLARE current_role TEXT;
     BEGIN
       SELECT role INTO current_role FROM public.users WHERE email = admin_email;
