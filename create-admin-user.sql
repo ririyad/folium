@@ -11,15 +11,16 @@ DECLARE
   admin_id UUID;
   admin_email TEXT := 'rasheduliriyad@gmail.com';
 BEGIN
-  -- First, check if ID already exists in public.users
+  -- First, get ID from auth.users if user exists with this email
   SELECT id INTO admin_id FROM auth.users WHERE email = admin_email;
 
   IF admin_id IS NOT NULL THEN
-    -- User exists in auth.users with this email, check if in public.users
+    -- User exists in auth.users with this email
+    -- Check if ID exists in public.users (regardless of email)
     IF EXISTS (SELECT 1 FROM public.users WHERE id = admin_id) THEN
-      RAISE NOTICE 'User exists in both tables. Updating role to admin...';
+      RAISE NOTICE 'User exists in both tables. Checking role...';
       UPDATE public.users SET role = 'admin' WHERE id = admin_id;
-      RAISE NOTICE 'Role updated.';
+      RAISE NOTICE 'Role updated to admin.';
     ELSE
       RAISE NOTICE 'Linking auth user to public.users...';
       INSERT INTO public.users (id, email, full_name, role, created_at, updated_at)
@@ -47,8 +48,10 @@ BEGIN
     '{"full_name": "Rashedul Riyad", "role": "admin"}'
   );
 
+  -- Use ON CONFLICT to handle case where ID already exists
   INSERT INTO public.users (id, email, full_name, role, created_at, updated_at)
-  VALUES (admin_id, admin_email, 'Rashedul Riyad', 'admin', NOW(), NOW());
+  VALUES (admin_id, admin_email, 'Rashedul Riyad', 'admin', NOW(), NOW())
+  ON CONFLICT (id) DO UPDATE SET role = 'admin', updated_at = NOW();
 
   RAISE NOTICE '=====================================================';
   RAISE NOTICE 'ADMIN USER CREATED SUCCESSFULLY';
