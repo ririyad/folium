@@ -15,8 +15,21 @@ BEGIN
   SELECT id INTO admin_id FROM auth.users WHERE email = admin_email;
 
   IF admin_id IS NOT NULL THEN
-    RAISE NOTICE 'Admin user already exists. Skipping creation.';
+    RAISE NOTICE 'Admin user already exists in auth.users. Checking public.users...';
+    
+    -- Check if also exists in public.users
+    IF EXISTS (SELECT 1 FROM public.users WHERE id = admin_id) THEN
+      RA NOTICE 'Admin user also exists in public.users. Updating role to admin...';
+      UPDATE public.users SET role = 'admin' WHERE id = admin_id;
+      RAISE NOTICE 'Role updated successfully.';
+    ELSE
+      RAISE NOTICE 'Inserting into public.users...';
+      INSERT INTO public.users (id, email, full_name, role, created_at, updated_at)
+      VALUES (admin_id, admin_email, 'Rashedul Riyad', 'admin', NOW(), NOW());
+    END IF;
+    
     RAISE NOTICE 'Email: %', admin_email;
+    RAISE NOTICE 'User ID: %', admin_id;
     RETURN;
   END IF;
 
