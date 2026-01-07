@@ -5,6 +5,20 @@
 -- Run this in Supabase SQL Editor
 -- ========================================
 
+-- First, add INSERT policy for the trigger if not exists
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'users' AND policyname = 'Users can insert their own profile'
+  ) THEN
+    CREATE POLICY "Users can insert their own profile" ON public.users
+      FOR INSERT WITH CHECK (auth.uid() = id);
+    RAISE NOTICE 'INSERT policy created for users table.';
+  ELSE
+    RAISE NOTICE 'INSERT policy already exists for users table.';
+  END IF;
+END $$;
+
 -- Insert admin user
 DO $$
 DECLARE
