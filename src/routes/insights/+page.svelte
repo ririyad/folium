@@ -8,9 +8,9 @@
 	}
 
 	interface SpeciesDistribution {
-		species: string;
-		count: number;
-		percentage: number;
+		species_name: string;
+		species_count: number;
+		species_percentage: number;
 	}
 
 	interface VolunteerContribution {
@@ -84,11 +84,11 @@
 	}
 
 	function getCumulativePercentage(index: number, data: SpeciesDistribution[]): number {
-		return data.slice(0, index).reduce((sum, item) => sum + item.percentage, 0) * 3.6;
+		return data.slice(0, index).reduce((sum, item) => sum + item.species_percentage, 0) * 3.6;
 	}
 
 	function getPieCoordinates(index: number, data: SpeciesDistribution[]): string {
-		const percentage = data[index].percentage;
+		const percentage = data[index].species_percentage;
 		const startAngle = (getCumulativePercentage(index, data) * Math.PI) / 180;
 		const endAngle = startAngle + (percentage * 3.6 * Math.PI) / 180;
 
@@ -146,10 +146,10 @@
 					<div class="pie-legend">
 						{#each speciesDistribution as item}
 							<div class="legend-item">
-								<div class="legend-color" style="background-color: {getSpeciesColor(item.species)}"></div>
+								<div class="legend-color" style="background-color: {getSpeciesColor(item.species_name)}"></div>
 								<div class="legend-text">
-									<span class="legend-label">{item.species}</span>
-									<span class="legend-value">{item.count} ({item.percentage.toFixed(1)}%)</span>
+									<span class="legend-label">{item.species_name}</span>
+									<span class="legend-value">{item.species_count} ({item.species_percentage.toFixed(1)}%)</span>
 								</div>
 							</div>
 						{/each}
@@ -159,7 +159,7 @@
 							<div
 								class="pie-segment"
 								style="
-									background-color: {getSpeciesColor(item.species)};
+									background-color: {getSpeciesColor(item.species_name)};
 									transform: rotate({getCumulativePercentage(index, speciesDistribution)}deg);
 									clip-path: polygon(50% 50%, {getPieCoordinates(index, speciesDistribution)})
 								"

@@ -24,9 +24,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Function to get species distribution
 CREATE OR REPLACE FUNCTION public.get_species_distribution()
 RETURNS TABLE (
-    species TEXT,
-    count BIGINT,
-    percentage NUMERIC
+    species_name TEXT,
+    species_count BIGINT,
+    species_percentage NUMERIC
 ) AS $$
 DECLARE
     total_trees BIGINT;
@@ -35,12 +35,12 @@ BEGIN
 
     RETURN QUERY
     SELECT
-        species,
-        COUNT(*) as count,
-        ROUND((COUNT(*)::NUMERIC / total_trees * 100), 2) as percentage
-    FROM public.trees
-    WHERE species IS NOT NULL
-    GROUP BY species
-    ORDER BY count DESC;
+        t.species as species_name,
+        COUNT(*) as species_count,
+        ROUND((COUNT(*)::NUMERIC / total_trees * 100), 2) as species_percentage
+    FROM public.trees t
+    WHERE t.species IS NOT NULL
+    GROUP BY t.species
+    ORDER BY species_count DESC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
