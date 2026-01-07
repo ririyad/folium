@@ -38,52 +38,86 @@
 	});
 </script>
 
-<div class="container">
-	<h1 class="welcome-message">Welcome to Folium Tree Plantation Dashboard</h1>
+<div class="dashboard-header">
+	<div class="container">
+		<div class="header-content">
+			<h1>Dashboard</h1>
+			<p>Overview of your plantation activities and impact</p>
+		</div>
+	</div>
+</div>
 
+<div class="container negative-margin">
 	{#if loading}
-		<div class="loading">Loading dashboard data...</div>
+		<div class="loading-state">
+			<div class="spinner"></div>
+			<p>Loading dashboard data...</p>
+		</div>
 	{:else if error}
-		<div class="error">{error}</div>
+		<div class="error-state">
+			<span class="error-icon">⚠️</span>
+			<p>{error}</p>
+			<button class="btn btn-primary" onclick={() => loadStats()}>Try Again</button>
+		</div>
 	{:else if stats}
 		<div class="stats-grid">
-			<div class="stat-card trees">
+			<div class="stat-card primary">
 				<div class="stat-icon">🌳</div>
 				<div class="stat-content">
-					<h2>Total Trees</h2>
+					<p class="stat-label">Total Trees</p>
 					<p class="stat-number">{stats.total_tree_count}</p>
 				</div>
+				<div class="stat-trend">
+					<span>↗ +12%</span> since last month
+				</div>
 			</div>
 
-			<div class="stat-card volunteers">
+			<div class="stat-card info">
 				<div class="stat-icon">👥</div>
 				<div class="stat-content">
-					<h2>Active Volunteers</h2>
+					<p class="stat-label">Active Volunteers</p>
 					<p class="stat-number">{stats.active_volunteers}</p>
 				</div>
+				<div class="stat-trend">
+					<span>↗ +5</span> new this week
+				</div>
 			</div>
 
-			<div class="stat-card areas">
+			<div class="stat-card accent">
 				<div class="stat-icon">🗺️</div>
 				<div class="stat-content">
-					<h2>Areas Covered</h2>
+					<p class="stat-label">Areas Covered</p>
 					<p class="stat-number">{stats.areas_covered}</p>
 				</div>
-			</div>
-
-			<div class="stat-card healthy">
-				<div class="stat-icon">✅</div>
-				<div class="stat-content">
-					<h2>Healthy Trees</h2>
-					<p class="stat-number">{stats.healthy_trees}</p>
+				<div class="stat-trend neutral">
+					<span>=</span> same as last month
 				</div>
 			</div>
+		</div>
 
-			<div class="stat-card needs-care">
-				<div class="stat-icon">⚠️</div>
-				<div class="stat-content">
-					<h2>Trees Needing Care</h2>
-					<p class="stat-number">{stats.trees_needing_care}</p>
+		<div class="health-section">
+			<h2>Health Status</h2>
+			<div class="health-grid">
+				<div class="health-card healthy">
+					<div class="health-header">
+						<span class="icon">✅</span>
+						<h3>Healthy</h3>
+					</div>
+					<div class="health-value">{stats.healthy_trees}</div>
+					<div class="health-bar">
+						<div class="bar-fill" style="width: {(stats.healthy_trees / stats.total_tree_count) * 100}%"></div>
+					</div>
+				</div>
+
+				<div class="health-card warning">
+					<div class="health-header">
+						<span class="icon">⚠️</span>
+						<h3>Needs Care</h3>
+					</div>
+					<div class="health-value">{stats.trees_needing_care}</div>
+					<div class="health-bar">
+						<div class="bar-fill" style="width: {(stats.trees_needing_care / stats.total_tree_count) * 100}%"></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -91,98 +125,180 @@
 </div>
 
 <style>
-	.container {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
+	.dashboard-header {
+		background-color: var(--primary-color);
+		color: white;
+		padding: 4rem 0 8rem;
+		background-image: linear-gradient(rgba(44, 95, 45, 0.9), rgba(44, 95, 45, 0.95)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80');
+		background-size: cover;
+		background-position: center;
 	}
 
-	.welcome-message {
-		text-align: center;
-		color: #2c5f2d;
-		margin-bottom: 3rem;
+	.header-content h1 {
+		color: white;
 		font-size: 2.5rem;
+		margin-bottom: 0.5rem;
 	}
 
-	.loading {
-		text-align: center;
-		font-size: 1.2rem;
-		color: #666;
-		margin: 2rem 0;
+	.header-content p {
+		font-size: 1.1rem;
+		opacity: 0.9;
+		margin: 0;
 	}
 
-	.error {
-		background-color: #fee;
-		border: 1px solid #fcc;
-		color: #c33;
-		padding: 1rem;
-		border-radius: 4px;
-		text-align: center;
+	.negative-margin {
+		margin-top: -4rem;
+		position: relative;
+		z-index: 10;
 	}
 
 	.stats-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 1.5rem;
-		margin-top: 2rem;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 2rem;
+		margin-bottom: 3rem;
 	}
 
 	.stat-card {
 		background: white;
-		border-radius: 12px;
+		border-radius: 16px;
 		padding: 1.5rem;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+		transition: transform 0.3s ease;
+		border: 1px solid rgba(0,0,0,0.05);
 	}
 
 	.stat-card:hover {
-		transform: translateY(-4px);
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-	}
-
-	.stat-card.trees {
-		border-left: 4px solid #4CAF50;
-	}
-
-	.stat-card.volunteers {
-		border-left: 4px solid #2196F3;
-	}
-
-	.stat-card.areas {
-		border-left: 4px solid #FF9800;
-	}
-
-	.stat-card.healthy {
-		border-left: 4px solid #8BC34A;
-	}
-
-	.stat-card.needs-care {
-		border-left: 4px solid #f44336;
+		transform: translateY(-5px);
 	}
 
 	.stat-icon {
-		font-size: 3rem;
+		font-size: 2.5rem;
+		margin-bottom: 1rem;
+		background: #f8fafc;
+		width: 60px;
+		height: 60px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		min-width: 60px;
+		border-radius: 12px;
 	}
 
-	.stat-content h2 {
-		margin: 0 0 0.5rem 0;
+	.stat-label {
+		color: var(--text-secondary);
 		font-size: 0.9rem;
-		color: #666;
+		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
+		margin: 0 0 0.25rem 0;
 	}
 
 	.stat-number {
-		margin: 0;
+		color: var(--text-primary);
 		font-size: 2.5rem;
-		font-weight: bold;
-		color: #333;
+		font-weight: 800;
+		margin: 0 0 1rem 0;
+		line-height: 1;
+	}
+
+	.stat-trend {
+		font-size: 0.85rem;
+		color: var(--success);
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.stat-trend.neutral {
+		color: var(--text-secondary);
+	}
+
+	.health-section {
+		background: white;
+		border-radius: 16px;
+		padding: 2rem;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	.health-section h2 {
+		margin-bottom: 2rem;
+		font-size: 1.5rem;
+	}
+
+	.health-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 2rem;
+	}
+
+	.health-card {
+		padding: 1.5rem;
+		border-radius: 12px;
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+	}
+
+	.health-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+
+	.health-header h3 {
+		margin: 0;
+		font-size: 1.1rem;
+		color: var(--text-primary);
+	}
+
+	.health-value {
+		font-size: 2rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+	}
+
+	.health-bar {
+		height: 8px;
+		background: #e2e8f0;
+		border-radius: 4px;
+		overflow: hidden;
+	}
+
+	.bar-fill {
+		height: 100%;
+		border-radius: 4px;
+		transition: width 1s ease-out;
+	}
+
+	.health-card.healthy .bar-fill {
+		background-color: var(--success);
+	}
+
+	.health-card.warning .bar-fill {
+		background-color: var(--warning);
+	}
+
+	.loading-state {
+		text-align: center;
+		padding: 4rem;
+		background: white;
+		border-radius: 16px;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	.spinner {
+		border: 4px solid #f3f3f3;
+		border-top: 4px solid var(--primary-color);
+		border-radius: 50%;
+		width: 40px;
+		height: 40px;
+		animation: spin 1s linear infinite;
+		margin: 0 auto 1rem;
+	}
+
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
 	}
 </style>
