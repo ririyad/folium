@@ -19,7 +19,7 @@ BEGIN
     
     -- Check if also exists in public.users
     IF EXISTS (SELECT 1 FROM public.users WHERE id = admin_id) THEN
-      RA NOTICE 'Admin user also exists in public.users. Updating role to admin...';
+      RAISE NOTICE 'Admin user also exists in public.users. Updating role to admin...';
       UPDATE public.users SET role = 'admin' WHERE id = admin_id;
       RAISE NOTICE 'Role updated successfully.';
     ELSE
