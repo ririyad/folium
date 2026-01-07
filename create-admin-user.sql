@@ -10,58 +10,43 @@ DO $$
 DECLARE
   admin_id UUID;
   admin_email TEXT := 'rasheduliriyad@gmail.com';
-  auth_user_exists BOOLEAN;
-  public_user_exists BOOLEAN;
 BEGIN
-  -- Check if user exists in both tables
-  SELECT EXISTS(SELECT 1 FROM auth.users WHERE email = admin_email), 
-         EXISTS(SELECT 1 FROM public.users WHERE email = admin_email)
-  INTO auth_user_exists, public_user_exists;
+  -- First, check if ID already exists in public.users
+  SELECT id INTO admin_id FROM auth.users WHERE email = admin_email;
 
-  IF public_user_exists THEN
-    RAISE NOTICE 'Admin user already exists in public.users. Checking role...';
+  IF admin_id IS NOT NULL THEN
+    -- User exists in auth.users with this email, check if in public.users
+    IF EXISTS (SELECT 1 FROM public.users WHERE id = admin_id) THEN
+      RAISE NOTICE 'User exists in both tables. Updating role to admin...';
+      UPDATE public.users SET role = 'admin' WHERE id = admin_id;
+      RAISE NOTICE 'Role updated.';
+    ELSE
+      RAISE NOTICE 'Linking auth user to public.users...';
+      INSERT INTO public.users (id, email, full_name, role, created_at, updated_at)
+      VALUES (admin_id, admin_email, 'Rashedul Riyad', 'admin', NOW(), NOW());
+    END IF;
     
-    DECLARE current_role TEXT;
-    BEGIN
-      SELECT role INTO current_role FROM public.users WHERE email = admin_email;
-      
-      IF current_role = 'admin' THEN
-        RAISE NOTICE 'User already has admin role.';
-      ELSE
-        UPDATE public.users SET role = 'admin' WHERE email = admin_email;
-        RAISE NOTICE 'Role updated to admin.';
-      END IF;
-    END;
-    
-    SELECT id INTO admin_id FROM public.users WHERE email = admin_email;
     RAISE NOTICE 'Email: %', admin_email;
     RAISE NOTICE 'User ID: %', admin_id;
     RETURN;
   END IF;
 
-  -- User doesn't exist in public.users, proceed with creation
-  IF auth_user_exists THEN
-    RAISE NOTICE 'User exists in auth.users but not in public.users. Linking...';
-    SELECT id INTO admin_id FROM auth.users WHERE email = admin_email;
-  ELSE
-    RAISE NOTICE 'Creating new admin user...';
-    admin_id := gen_random_uuid();
+  -- User doesn't exist anywhere, create new
+  RAISE NOTICE 'Creating new admin user...';
+  admin_id := gen_random_uuid();
 
-    -- Insert into auth.users
-    INSERT INTO auth.users (
-      id, instance_id, aud, role, email, encrypted_password,
-      email_confirmed_at, invited_at, created_at, updated_at,
-      last_sign_in_at, raw_app_meta_data, raw_user_meta_data
-    ) VALUES (
-      admin_id, '00000000-0000-0000-0000-000000000000',
-      'authenticated', 'authenticated', admin_email, '',
-      NOW(), NOW(), NOW(), NOW(), NOW(),
-      '{"provider": "email"}',
-      '{"full_name": "Rashedul Riyad", "role": "admin"}'
-    );
-  END IF;
+  INSERT INTO auth.users (
+    id, instance_id, aud, role, email, encrypted_password,
+    email_confirmed_at, invited_at, created_at, updated_at,
+    last_sign_in_at, raw_app_meta_data, raw_user_meta_data
+  ) VALUES (
+    admin_id, '00000000-0000-0000-0000-000000000000',
+    'authenticated', 'authenticated', admin_email, '',
+    NOW(), NOW(), NOW(), NOW(), NOW(),
+    '{"provider": "email"}',
+    '{"full_name": "Rashedul Riyad", "role": "admin"}'
+  );
 
-  -- Insert into public.users
   INSERT INTO public.users (id, email, full_name, role, created_at, updated_at)
   VALUES (admin_id, admin_email, 'Rashedul Riyad', 'admin', NOW(), NOW());
 
