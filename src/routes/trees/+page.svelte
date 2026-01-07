@@ -227,8 +227,10 @@
 						{/if}
 					</div>
 					<div class="tree-actions">
-						<button class="btn btn-secondary" on:click={() => openForm(tree)}>Edit</button>
-						<button class="btn btn-danger" on:click={() => deleteTree(tree.id)}>Delete</button>
+						{#if canEdit}
+							<button class="btn btn-secondary" onclick={() => openForm(tree)}>Edit</button>
+							<button class="btn btn-danger" onclick={() => deleteTree(tree.id)}>Delete</button>
+						{/if}
 					</div>
 				</div>
 			{/each}
@@ -403,6 +405,22 @@
 	.tree-actions {
 		display: flex;
 		gap: 0.5rem;
+	}
+
+	.permission-hint {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1rem;
+		background: #fef3c7;
+		border: 1px solid #fde68a;
+		border-radius: 8px;
+		color: #9a3412;
+		font-size: 0.85rem;
+	}
+
+	.permission-hint .icon {
+		font-size: 1.25rem;
 	}
 
 	.btn {
